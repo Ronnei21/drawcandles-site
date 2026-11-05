@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual — DrawCandles Live e Ultra</title>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --preto: #0a0d10;
+    --cinza-escuro: #151a1f;
+    --cinza-medio: #1e252d;
+    --cinza-borda: #2a333d;
+    --texto: #e7edf4;
+    --texto-suave: #91a4b7;
+    --azul: #3ec6ff;
+    --azul-escuro: #2f4a63;
+    --azul-hover: #4dd0ff;
+    --dourado: #e8b93e;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--preto);
+    color: var(--texto);
+    line-height: 1.6;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(10, 13, 16, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--cinza-borda);
+    z-index: 100;
+    padding: 16px 0;
+  }
+  nav .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-size: 20px; font-weight: 800; color: var(--texto); text-decoration: none; }
+  .logo span { color: var(--dourado); }
+  nav ul { list-style: none; display: flex; gap: 24px; }
+  nav a { color: var(--texto-suave); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  nav a:hover { color: var(--texto); }
+  .btn-nav { background: var(--azul-escuro); color: var(--texto) !important; padding: 8px 18px; border-radius: 6px; font-weight: 600; }
+  .btn-nav:hover { background: var(--azul-hover); color: var(--preto) !important; }
+
+  .layout {
+    display: flex;
+    margin-top: 70px;
+    min-height: calc(100vh - 70px);
+  }
+
+  aside {
+    width: 280px;
+    background: var(--cinza-escuro);
+    border-right: 1px solid var(--cinza-borda);
+    padding: 32px 0;
+    position: fixed;
+    top: 70px; bottom: 0; left: 0;
+    overflow-y: auto;
+  }
+
+  aside h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--texto-suave);
+    padding: 0 24px;
+    margin: 24px 0 12px;
+  }
+  aside h3:first-child { margin-top: 0; }
+
+  aside ul { list-style: none; }
+  aside li a {
+    display: block;
+    padding: 10px 24px;
+    color: var(--texto-suave);
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  aside li a:hover { color: var(--texto); background: var(--cinza-medio); }
+  aside li a.ativo { color: var(--dourado); border-left-color: var(--dourado); background: var(--cinza-medio); }
+
+  main {
+    flex: 1;
+    margin-left: 280px;
+    padding: 48px;
+    max-width: 950px;
+  }
+
+  .secao { display: none; }
+  .secao.ativa { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  h1 .destaque { color: var(--dourado); }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--cinza-borda);
+  }
+  h3 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; color: var(--azul); }
+
+  p { margin-bottom: 12px; color: var(--texto-suave); font-size: 15px; }
+
+  .img-exemplo {
+    display: block;
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--cinza-borda);
+    margin: 16px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+
+  .img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .aviso {
+    background: rgba(232, 185, 62, 0.1);
+    border: 1px solid rgba(232, 185, 62, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    color: var(--dourado);
+    font-size: 14px;
+  }
+
+  @media (max-width: 900px) {
+    aside { display: none; }
+    main { margin-left: 0; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="/" class="logo">Draw<span>Candles</span></a>
+    <ul>
+      <li><a href="/live/">Live</a></li>
+      <li><a href="/">Ultra</a></li>
+      <li><a href="/manual/" class="btn-nav">Manual</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <aside>
+    <h3>DrawCandles Live</h3>
+    <ul>
+      <li><a onclick="mostrar('live-barra')" data-secao="live-barra">Barra de ferramentas</a></li>
+      <li><a onclick="mostrar('live-1')" data-secao="live-1">1. Alça de arrasto</a></li>
+      <li><a onclick="mostrar('live-2')" data-secao="live-2">2. Botão Recolher</a></li>
+      <li><a onclick="mostrar('live-3')" data-secao="live-3">3. Candles Encadeados</a></li>
+      <li><a onclick="mostrar('live-4')" data-secao="live-4">4. Candles Desencadeados</a></li>
+      <li><a onclick="mostrar('live-5')" data-secao="live-5">5. Modo Mover</a></li>
+      <li><a onclick="mostrar('live-6')" data-secao="live-6">6. Fibonacci</a></li>
+      <li><a onclick="mostrar('live-7')" data-secao="live-7">7. Linha</a></li>
+      <li><a onclick="mostrar('live-8')" data-secao="live-8">8. Traço</a></li>
+      <li><a onclick="mostrar('live-9')" data-secao="live-9">9. Seta</a></li>
+      <li><a onclick="mostrar('live-10')" data-secao="live-10">10. Círculo</a></li>
+      <li><a onclick="mostrar('live-11')" data-secao="live-11">11. Quadrado</a></li>
+      <li><a onclick="mostrar('live-12')" data-secao="live-12">12. Borracha</a></li>
+      <li><a onclick="mostrar('live-13')" data-secao="live-13">13. Highlight</a></li>
+      <li><a onclick="mostrar('live-14')" data-secao="live-14">14. Texto</a></li>
+      <li><a onclick="mostrar('live-15')" data-secao="live-15">15. Desfazer</a></li>
+      <li><a onclick="mostrar('live-16')" data-secao="live-16">16. Lixeira</a></li>
+      <li><a onclick="mostrar('live-17')" data-secao="live-17">17. Cores</a></li>
+      <li><a onclick="mostrar('live-18')" data-secao="live-18">18. Espessura</a></li>
+      <li><a onclick="mostrar('live-19')" data-secao="live-19">19. Print</a></li>
+      <li><a onclick="mostrar('live-20')" data-secao="live-20">20. Print com Programa</a></li>
+      <li><a onclick="mostrar('live-21')" data-secao="live-21">21. Modo Sobrepor</a></li>
+      <li><a onclick="mostrar('live-22')" data-secao="live-22">22. Modo Lousa</a></li>
+      <li><a onclick="mostrar('live-23')" data-secao="live-23">23. Painel de Ações</a></li>
+    </ul>
+    <h3>Extras</h3>
+    <ul>
+      <li><a onclick="mostrar('live-dd')" data-secao="live-dd">Dropdowns do Live</a></li>
+    </ul>
+
+    <h3>DrawCandles Ultra</h3>
+    <ul>
+      <li><a onclick="mostrar('ultra-barra')" data-secao="ultra-barra">Barra de ferramentas</a></li>
+      <li><a onclick="mostrar('ultra-1')" data-secao="ultra-1">1. Botão Recolher</a></li>
+      <li><a onclick="mostrar('ultra-2')" data-secao="ultra-2">2. Time Frame</a></li>
+      <li><a onclick="mostrar('ultra-3')" data-secao="ultra-3">3. Modo Mover</a></li>
+      <li><a onclick="mostrar('ultra-4')" data-secao="ultra-4">4. Desenhar Candles</a></li>
+      <li><a onclick="mostrar('ultra-5')" data-secao="ultra-5">5. Fibonacci</a></li>
+      <li><a onclick="mostrar('ultra-6')" data-secao="ultra-6">6. Linha</a></li>
+      <li><a onclick="mostrar('ultra-7')" data-secao="ultra-7">7. Traço</a></li>
+      <li><a onclick="mostrar('ultra-8')" data-secao="ultra-8">8. Seta</a></li>
+      <li><a onclick="mostrar('ultra-9')" data-secao="ultra-9">9. Círculo</a></li>
+      <li><a onclick="mostrar('ultra-10')" data-secao="ultra-10">10. Quadrado</a></li>
+      <li><a onclick="mostrar('ultra-11')" data-secao="ultra-11">11. Borracha</a></li>
+      <li><a onclick="mostrar('ultra-12')" data-secao="ultra-12">12. Texto</a></li>
+      <li><a onclick="mostrar('ultra-13')" data-secao="ultra-13">13. Highlight</a></li>
+      <li><a onclick="mostrar('ultra-14')" data-secao="ultra-14">14. Desfazer</a></li>
+      <li><a onclick="mostrar('ultra-15')" data-secao="ultra-15">15. Lixeira</a></li>
+      <li><a onclick="mostrar('ultra-16')" data-secao="ultra-16">16. Cores</a></li>
+      <li><a onclick="mostrar('ultra-17')" data-secao="ultra-17">17. Tema Claro/Escuro</a></li>
+      <li><a onclick="mostrar('ultra-18')" data-secao="ultra-18">18. Espessura</a></li>
+      <li><a onclick="mostrar('ultra-19')" data-secao="ultra-19">19. Print</a></li>
+      <li><a onclick="mostrar('ultra-20')" data-secao="ultra-20">20. Print com Programa</a></li>
+      <li><a onclick="mostrar('ultra-21')" data-secao="ultra-21">21. Relógio</a></li>
+      <li><a onclick="mostrar('ultra-22')" data-secao="ultra-22">22. Modo Sobrepor</a></li>
+      <li><a onclick="mostrar('ultra-23')" data-secao="ultra-23">23. Centralizar Candles</a></li>
+      <li><a onclick="mostrar('ultra-24')" data-secao="ultra-24">24. Modo Lousa</a></li>
+    </ul>
+  </aside>
+
+  <main>
+
+    <!-- SEÇÃO PADRÃO: LIVE BARRA -->
+    <section id="live-barra" class="secao ativa">
+      <h1>DrawCandles <span class="destaque">Live</span></h1>
+      <p>Manual completo da ferramenta de desenho ao vivo para traders.</p>
+      <h2>Barra de ferramentas</h2>
+      <img src="/manual-live/live-toolbar.png" alt="Toolbar do Live" class="img-exemplo">
+      <p>Use os links no menu à esquerda para navegar entre os botões.</p>
+    </section>
+
+    <!-- SEÇÕES DO LIVE -->
+    <section id="live-1" class="secao">
+      <h2>1. Alça de arrasto</h2>
+      <p>Clique, segure e arraste o programa para a tela que deseja usar. Assim, quando você clicar em recolher, a barra de recolher aparecerá na tela escolhida.</p>
+    </section>
+
+    <section id="live-2" class="secao">
+      <h2>2. Botão Recolher</h2>
+      <p>Ao clicar em recolher, o programa irá se transformar num ícone/relógio no topo central da tela/monitor em que o programa estiver rodando.</p>
+      <img src="/manual-live/live-relogio.png" alt="Relógio do Live" class="img-exemplo">
+    </section>
+
+    <section id="live-3" class="secao">
+      <h2>3. Candles Encadeados</h2>
+      <p>Ao clicar este botão fica selecionado e você já pode desenhar candles. O próximo candle sempre abrirá no fechamento do candle anterior mantendo sempre a mesma distância. Para desenhar pavis faça todo o movimento que você deseja que o candle tenha feito.</p>
+    </section>
+
+    <section id="live-4" class="secao">
+      <h2>4. Candles Desencadeados</h2>
+      <p>Ao clicar este botão fica selecionado e você já pode desenhar candles. Aonde você desenhar o candle ele será desenhado não estando preso ao fechamento do candle anterior, ou seja, você pode desenhar candles em qualquer lugar na tela.</p>
+    </section>
+
+    <section id="live-5" class="secao">
+      <h2>5. Modo Mover</h2>
+      <p>Quando o modo mover estiver selecionado você pode usar as funções do windows ou dos programas em que você já está trabalhando. Ao selecionar um botão da barra de tarefas, ele obedecerá ao botão em questão. Para voltar ao modo mover é só clicar com o botão direito do mouse.</p>
+    </section>
+
+    <section id="live-6" class="secao">
+      <h2>6. Fibonacci</h2>
+      <p>Selecione o botão Fibonacci na tela, clique segure e arraste para desenhar sua fibonacci. No momento em que você estiver desenhando sua fibonacci ela não aparecerá, assim que você soltar ela aparecerá. Clique com o botão direito para soltar o desenho da fibonacci e voltar para o modo mover.</p>
+    </section>
+
+    <section id="live-7" class="secao">
+      <h2>7. Linha de Suporte e Resistência</h2>
+      <p>Selecione o botão de linha e clique aonde você quer que uma linha seja desenhada. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-8" class="secao">
+      <h2>8. Traço</h2>
+      <p>Selecione o botão em questão, clique segure e arraste para desenhar linhas em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-9" class="secao">
+      <h2>9. Seta</h2>
+      <p>Selecione o botão seta, clique segure e arraste para desenhar setas em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-10" class="secao">
+      <h2>10. Círculo</h2>
+      <p>Selecione o botão círculo, clique segure e arraste para desenhar Círculos em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-11" class="secao">
+      <h2>11. Quadrado</h2>
+      <p>Selecione o botão quadrado, clique segure e arraste para desenhar quadrados em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-12" class="secao">
+      <h2>12. Borracha</h2>
+      <p>Selecione o botão borracha, clique segure e arraste somente em cima dos objetos que deseja apagar. Clique com o direito pra soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-13" class="secao">
+      <h2>13. Highlight</h2>
+      <p>Selecione o botão Highlight, clique segure e arraste para desenhar um highlight sobre algo que deseja destacar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="live-14" class="secao">
+      <h2>14. Caixa de Texto</h2>
+      <p>Selecione o botão Texto, clique no local onde deseja escrever e abrirá uma caixa de texto, escreva o seu texto e dê enter. Clique com o botão direito para soltar a ferramenta. Você pode clicar em volta do texto segurar e arrastar caso queira reajustar o local.</p>
+    </section>
+
+    <section id="live-15" class="secao">
+      <h2>15. Desfazer</h2>
+      <p>Ao clicar neste botão ele desfará a última ação.</p>
+    </section>
+
+    <section id="live-16" class="secao">
+      <h2>16. Lixeira ou Deletar tudo</h2>
+      <p>Ao clicar neste tudo será apagado.</p>
+    </section>
+
+    <section id="live-17" class="secao">
+      <h2>17. Cores</h2>
+      <p>Quando quiser mudar a cor dos objetos e do texto use essa paleta de cores. Esse botão não muda a cor dos candles.</p>
+    </section>
+
+    <section id="live-18" class="secao">
+      <h2>18. Espessura</h2>
+      <p>Use para mudar a espessura das linhas, traços, círculos e quadrados.</p>
+    </section>
+
+    <section id="live-19" class="secao">
+      <h2>19. Print</h2>
+      <p>Selecione o botão de Print, clique segure e arraste e selecione a área que deseja que esteja no print. Mesmo que a ferramenta esteja na frente da imagem, o app não sairá no print, somente o que estiver embaixo. A imagem será salva imediatamente no desktop assim que você soltar a área selecionada.</p>
+    </section>
+
+    <section id="live-20" class="secao">
+      <h2>20. Print com programa</h2>
+      <p>Selecione o botão de Print com o programa, clique segure e arraste e selecione a área que deseja que esteja no print. A diferença é que se o aplicativo estiver dentro da área selecionada ele também sairá no print.</p>
+    </section>
+
+    <section id="live-21" class="secao">
+      <h2>21. Modo sobrepor</h2>
+      <p>Às vezes o modo lousa poderá travar no windows, e clicando no modo sobrepor o modo lousa poderá ser ativado e desativado facilmente. Ele serve para auxiliar o modo lousa.</p>
+    </section>
+
+    <section id="live-22" class="secao">
+      <h2>22. Modo Lousa</h2>
+      <p>O modo lousa serve como um caderno de desenho. Com um clique aparecerá uma lousa em branco. Você pode desenhar candles, linhas, traços e textos. Ao clicar novamente a tela muda para preto, clicando mais uma vez você sai do modo lousa. Porém, quando desejar voltar no desenho que você fez, é só clicar em lousa novamente e seus desenhos estarão lá como um caderno de anotações.</p>
+      <div class="aviso">💡 No modo lousa, os candles são sempre desencadeados. A transição da cor dos pavis dos candles e do texto são automáticos: na lousa branca o pavio é preto, na lousa preta automaticamente os pavis passam a ser brancos.</div>
+    </section>
+
+    <section id="live-23" class="secao">
+      <h2>23. Painel de Ações</h2>
+      <p>O painel serve apenas para mostrar qual ferramenta você está usando no momento, ou se você já soltou e voltou para o modo mover.</p>
+    </section>
+
+    <section id="live-dd" class="secao">
+      <h2>Extras: Dropdowns do Live</h2>
+      
+      <h3>Dropdown do botão Candles Encadeados</h3>
+      <p>No dropdown do botão Candles Encadeados você pode escolher a cor dos candles no preset que se apresenta. O exemplo mais comum é se você vai desenhar no fundo preto, os pavis devem ser brancos. Se for desenhar em um fundo branco os pavis devem ser pretos.</p>
+      <img src="/manual-live/live-dd-candles.png" alt="Dropdown Candles" class="img-exemplo">
+
+      <h3>Dropdown do botão Candles Desencadeados</h3>
+      <p>No dropdown do botão Candles Desencadeados você pode escolher a espessura dos candles que você quer desenhar.</p>
+      <img src="/manual-live/live-dd-tamanho.png" alt="Dropdown Tamanho" class="img-exemplo">
+
+      <h3>Dropdown do botão Fibonacci</h3>
+      <p>No dropdown do botão Fibonacci você encontra os dois padrões de fibo mais usados no mercado.</p>
+      <img src="/manual-live/live-dd-fibo.png" alt="Dropdown Fibonacci" class="img-exemplo">
+
+      <h3>Dropdown do botão de Texto</h3>
+      <p>No dropdown do botão de Texto você seleciona o tamanho de texto desejado.</p>
+      <img src="/manual-live/live-dd-texto.png" alt="Dropdown Texto" class="img-exemplo">
+    </section>
+
+    <!-- SEÇÕES DO ULTRA -->
+    <section id="ultra-barra" class="secao">
+      <h1>DrawCandles <span class="destaque">Ultra</span></h1>
+      <p>Manual completo da ferramenta de análise gráfica multi-timeframe.</p>
+      <h2>Barra de ferramentas</h2>
+      <img src="/manual-ultra/ultra-toolbar.png" alt="Toolbar do Ultra" class="img-exemplo">
+      <p>Use os links no menu à esquerda para navegar entre os botões.</p>
+    </section>
+
+    <section id="ultra-1" class="secao">
+      <h2>1. Botão Recolher</h2>
+      <p>Ao clicar no botão recolher ele se transforma em um ícone com relógio no topo central da tela/monitor em que você estiver usando.</p>
+      <div class="img-grid">
+        <img src="/manual-ultra/ultra-recolher-1-aberto.png" alt="Programa aberto" class="img-exemplo">
+        <img src="/manual-ultra/ultra-recolher-2-windows.png" alt="Windows com relógio" class="img-exemplo">
+        <img src="/manual-ultra/ultra-recolher-3-zoom.png" alt="Zoom no relógio" class="img-exemplo">
+      </div>
+    </section>
+
+    <section id="ultra-2" class="secao">
+      <h2>2. Time Frame</h2>
+      <p>Ao clicar no botão de Time Frame você poderá escolher qual o ambiente você irá desenhar os candles. São 7 no total. Temos o modo vazio, onde você desenha candles encadeados sem representação nenhuma de time frame. Em todos os outros modos tem um time frame fonte e os demais que acompanham.</p>
+      <img src="/manual-ultra/ultra-tf-layouts.png" alt="Menu de Layouts" class="img-exemplo">
+
+      <h3>2 TF</h3>
+      <p>Desenhe os candles de 1min do lado direito. A cada 5 candles desenhados irá fechar um candle de 5min do lado esquerdo. Se começar a desenhar do lado esquerdo nada aparecerá do lado direito.</p>
+      <img src="/manual-ultra/ultra-tf-2.png" alt="Layout 2 TF" class="img-exemplo">
+
+      <h3>4 TF</h3>
+      <p>Desenhe os candles de 1min do lado direito, e agora teremos a companhia dos gráficos de 3min, 5min e 15min.</p>
+      <img src="/manual-ultra/ultra-tf-4.png" alt="Layout 4 TF" class="img-exemplo">
+
+      <h3>8 TF</h3>
+      <p>Agora temos time frames maiores, como 30min, 60min e 120min. Você pode começar desenhando candles de 15min para chegar rapidamente no fechamento de 30 e 60 min.</p>
+      <img src="/manual-ultra/ultra-tf-8.png" alt="Layout 8 TF" class="img-exemplo">
+
+      <h3>8 TF Plus</h3>
+      <p>A diferença para o 8 TF é que o espaço para desenhar o 1min é maior.</p>
+      <img src="/manual-ultra/ultra-tf-8plus.png" alt="Layout 8 TF+" class="img-exemplo">
+
+      <h3>5 TF 1</h3>
+      <p>São os 5 principais time frames micros com um espaço duplicado para o time frame de 1min.</p>
+      <img src="/manual-ultra/ultra-tf-5fe1.png" alt="Layout 5 TF1" class="img-exemplo">
+
+      <h3>5 TF 5</h3>
+      <p>A mesma divisão anterior, só que o menor time frame agora é o 5min e agora observaremos até o fechamento de tempos maiores como 30 e 60min.</p>
+      <img src="/manual-ultra/ultra-tf-5fe5.png" alt="Layout 5 TF5" class="img-exemplo">
+    </section>
+
+    <section id="ultra-3" class="secao">
+      <h2>3. Modo Mover</h2>
+      <p>O modo mover é quando você quer soltar a ferramenta e mexer no windows ou nos objetos. Para ir para o modo mover é só clicar com o botão direito do mouse e imediatamente ele solta qualquer ferramenta e o seu mouse está pronto pra usar nas outras tarefas.</p>
+    </section>
+
+    <section id="ultra-4" class="secao">
+      <h2>4. Desenhar Candles</h2>
+      <p>Selecionando este botão você já pode desenhar candles dentro dos layouts de time frames que você tem à disposição no botão 2. Lembrando que os candles são sempre encadeados, o próximo será sempre desenhado no fechamento do anterior. O lugar onde você pode desenhar candles soltos é no botão de modo lousa (24). Para soltar a ferramenta clique com o botão direito do mouse.</p>
+      <div class="aviso">🚀 FUNÇÃO MAIS IMPORTANTE: Ao desenhar candles, se você quiser desenhar linhas de ondas ou suporte e resistência, existe um atalho. Assim que você terminar de desenhar o candle, segure Shift + botão direito do mouse, e você já estará no modo de traço. Para voltar ao modo candle, pressione novamente Shift + botão direito.</div>
+    </section>
+
+    <section id="ultra-5" class="secao">
+      <h2>5. Fibonacci</h2>
+      <p>Selecione o botão Fibonacci na tela, clique segure e arraste para desenhar sua fibonacci. No momento em que você estiver desenhando sua fibonacci ela não aparecerá, assim que você soltar ela aparecerá. Clique com o botão direito para soltar o desenho da fibonacci e voltar para o modo mover, assim você poderá agora ajustar sua fibonacci pelos botões de ajuste.</p>
+    </section>
+
+    <section id="ultra-6" class="secao">
+      <h2>6. Linha de Suporte e Resistência</h2>
+      <p>Selecione o botão de linha e clique aonde você quer que uma linha seja desenhada. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-7" class="secao">
+      <h2>7. Traço</h2>
+      <p>Selecione o botão em questão, clique segure e arraste para desenhar linhas em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-8" class="secao">
+      <h2>8. Seta</h2>
+      <p>Selecione o botão seta, clique segure e arraste para desenhar setas em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-9" class="secao">
+      <h2>9. Círculo</h2>
+      <p>Selecione o botão círculo, clique segure e arraste para desenhar Círculos em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-10" class="secao">
+      <h2>10. Quadrado</h2>
+      <p>Selecione o botão quadrado, clique segure e arraste para desenhar quadrados em qualquer direção que desejar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-11" class="secao">
+      <h2>11. Borracha</h2>
+      <p>Selecione o botão borracha, clique segure e arraste somente em cima dos objetos que deseja apagar. Clique com o direito pra soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-12" class="secao">
+      <h2>12. Caixa de Texto</h2>
+      <p>Selecione o botão Texto, clique no local onde deseja escrever e abrirá uma caixa de texto, escreva o seu texto e dê enter. Clique com o botão direito para soltar a ferramenta. Você pode clicar em volta do texto segurar e arrastar caso queira reajustar o local.</p>
+    </section>
+
+    <section id="ultra-13" class="secao">
+      <h2>13. Highlight</h2>
+      <p>Selecione o botão Highlight, clique segure e arraste para desenhar um highlight sobre algo que deseja destacar. Clique com o botão direito para soltar a ferramenta.</p>
+    </section>
+
+    <section id="ultra-14" class="secao">
+      <h2>14. Desfazer</h2>
+      <p>Ao clicar neste botão ele desfará a última ação.</p>
+    </section>
+
+    <section id="ultra-15" class="secao">
+      <h2>15. Lixeira ou Deletar tudo</h2>
+      <p>Ao clicar neste tudo será apagado.</p>
+    </section>
+
+    <section id="ultra-16" class="secao">
+      <h2>16. Cores</h2>
+      <p>Quando quiser mudar a cor dos objetos e do texto use essa paleta de cores. Esse botão não muda a cor dos candles.</p>
+    </section>
+
+    <section id="ultra-17" class="secao">
+      <h2>17. Modo Claro/Escuro</h2>
+      <p>Use essa função para escolher a cor de fundo do aplicativo.</p>
+    </section>
+
+    <section id="ultra-18" class="secao">
+      <h2>18. Espessura</h2>
+      <p>Use para mudar a espessura das linhas, traços, círculos e quadrados.</p>
+    </section>
+
+    <section id="ultra-19" class="secao">
+      <h2>19. Print</h2>
+      <p>Selecione o botão de Print, clique segure e arraste e selecione a área que deseja que esteja no print. Mesmo que a ferramenta esteja na frente da imagem, o app não sairá no print, somente o que estiver embaixo. A imagem será salva imediatamente no desktop assim que você soltar a área selecionada.</p>
+    </section>
+
+    <section id="ultra-20" class="secao">
+      <h2>20. Print com programa</h2>
+      <p>Selecione o botão de Print com o programa, clique segure e arraste e selecione a área que deseja que esteja no print. A diferença é que se o aplicativo estiver dentro da área selecionada ele também sairá no print.</p>
+    </section>
+
+    <section id="ultra-21" class="secao">
+      <h2>21. Relógio</h2>
+      <p>Clicando no relógio aparecerá um relógio ajustável. Ele serve muito para usar no modo de sobreposição de tela em que o mercado ao vivo está acontecendo e você pode acompanhar o fechamento dos candles mais importantes. Clicando com o botão direito você pode criar alarmes para não perder a abertura e fechamento dos time frames mais importantes do mercado.</p>
+      <div class="img-grid">
+        <img src="/manual-ultra/ultra-relogio-centro.png" alt="Relógio no centro" class="img-exemplo">
+        <img src="/manual-ultra/relogio-botao-direito.png" alt="Janela de alarmes" class="img-exemplo">
+      </div>
+    </section>
+
+    <section id="ultra-22" class="secao">
+      <h2>22. Modo Sobreposição de Tela</h2>
+      <p>Este modo lhe permite ver, por exemplo, o mercado ao vivo ou replay que está rodando debaixo do aplicativo. E você também pode desenhar no gráfico ao vivo ou replay.</p>
+      <div class="img-grid">
+        <img src="/manual-ultra/ultra-sobrepor-1-profit.png" alt="Programa em cima do Profit" class="img-exemplo">
+        <img src="/manual-ultra/ultra-sobrepor-2-barra.png" alt="Modo Sobrepor (barra no topo)" class="img-exemplo">
+        <img src="/manual-ultra/ultra-sobrepor-3-zoom.png" alt="Zoom da barra no Sobrepor" class="img-exemplo">
+        <img src="/manual-ultra/ultra-sobrepor-4-candles.png" alt="Candles desenhados no Profit" class="img-exemplo">
+      </div>
+    </section>
+
+    <section id="ultra-23" class="secao">
+      <h2>23. Centralizar Candles</h2>
+      <p>Às vezes você vai desenhar candles que vão sair do espaço do gráfico e os candles vão desaparecer nos outros time frames. Quando você clicar no botão centralizar ele encaixa os candles para dentro do gráfico novamente.</p>
+      <div class="img-grid">
+        <img src="/manual-ultra/ultra-centralizar-antes.png" alt="Antes de centralizar" class="img-exemplo">
+        <img src="/manual-ultra/ultra-centralizar-depois.png" alt="Depois de centralizar" class="img-exemplo">
+      </div>
+    </section>
+
+    <section id="ultra-24" class="secao">
+      <h2>24. Modo Lousa</h2>
+      <p>O modo lousa serve como um caderno de desenho. Com um clique aparecerá uma lousa em branco. Você pode desenhar candles, linhas, traços e textos. Ao clicar novamente a tela muda para preto, clicando mais uma vez você sai do modo lousa. Porém, quando desejar voltar no desenho que você fez, é só clicar em lousa novamente e seus desenhos estarão lá como um caderno de anotações.</p>
+      <div class="img-grid">
+        <img src="/manual-ultra/ultra-lousa-branca.png" alt="Lousa branca" class="img-exemplo">
+        <img src="/manual-ultra/ultra-lousa-preta.png" alt="Lousa preta" class="img-exemplo">
+      </div>
+      <div class="aviso">💡 No modo lousa, os candles são sempre desencadeados. A transição da cor dos pavis dos candles e do texto são automáticos: na lousa branca o pavio é preto, na lousa preta automaticamente os pavis passam a ser brancos.</div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function mostrar(id) {
+    // Esconde todas as seções
+    document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+    // Mostra a seção clicada
+    document.getElementById(id).classList.add('ativa');
+    // Atualiza o destaque do menu
+    document.querySelectorAll('aside a').forEach(a => a.classList.remove('ativo'));
+    document.querySelector(`aside a[data-secao="${id}"]`).classList.add('ativo');
+    // Scroll pro topo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
